@@ -1,0 +1,62 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Load dataset
+df = pd.read_csv("CSV.csv")
+
+# --- Data Inspection ---
+print(df.info())
+print(df.isnull().sum())
+print(df.describe())
+
+# --- Data Visualization ---
+sns.set(style="whitegrid")
+
+# Plot 1: Molecular Weight vs XLogP
+plt.figure(figsize=(8, 5))
+sns.scatterplot(data=df, x="MolecularWeight", y="XLogP", hue="CID", palette="viridis", s=100)
+plt.title("Molecular Weight vs XLogP")
+plt.xlabel("Molecular Weight")
+plt.ylabel("XLogP")
+plt.legend(title="CID")
+plt.tight_layout()
+plt.show()
+
+# Plot 2: XLogP by CID
+plt.figure(figsize=(8, 5))
+sns.barplot(data=df, x="CID", y="XLogP", palette="coolwarm")
+plt.title("XLogP Across Compounds")
+plt.xlabel("Compound CID")
+plt.ylabel("XLogP")
+plt.tight_layout()
+plt.show()
+
+# --- Machine Learning: Predict XLogP from MolecularWeight ---
+# Prepare data
+X = df[["MolecularWeight"]]
+y = df["XLogP"]
+
+# Train/Test Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Model: Linear Regression
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict
+y_pred = model.predict(X_test)
+
+# Evaluation
+print("Mean Squared Error (MSE):", mean_squared_error(y_test, y_pred))
+print("R^2 Score:", r2_score(y_test, y_pred))
+
+# Optional: Plot regression line
+plt.figure(figsize=(8, 5))
+sns.regplot(x="MolecularWeight", y="XLogP", data=df, ci=None, scatter_kws={"s": 80})
+plt.title("Regression: Predicting XLogP from Molecular Weight")
+plt.tight_layout()
+plt.show()
